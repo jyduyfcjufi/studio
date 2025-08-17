@@ -62,7 +62,7 @@ class InferenceViewModel(application: Application) : AndroidViewModel(applicatio
                     modelPath = currentModel.path,
                     tokenizerPath = currentModel.tokenizerPath,
                     accelerator = accelerator,
-                    settings = settings // 将设置传递给推理引擎
+                    settings = settings
                 )
 
                 val responseFlow = llmInference!!.generate(prompt)
@@ -101,8 +101,6 @@ class InferenceViewModel(application: Application) : AndroidViewModel(applicatio
                 val newText = if (append) lastMessage.text + text else text
                 updatedMessages[lastMessageIndex] = lastMessage.copy(text = newText)
                 currentState.copy(messages = updatedMessages)
-            } else {
-                currentState
             }
         }
     }

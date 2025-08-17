@@ -34,8 +34,8 @@ class LlmInference(
             val modelByteBuffer = loadModelFile(modelPath)
             val options = Interpreter.Options()
             when (accelerator) {
-                Accelerator.NNAPI -> options.addDelegate(NnApiDelegate())
-                Accelerator.GPU -> options.a.addDelegate(GpuDelegate())
+                Accelerator.NNAPI -> options.addDelegate(NnApiApiDelegate())
+                Accelerator.GPU -> options.addDelegate(GpuDelegate())
                 else -> options.setNumThreads(4)
             }
             interpreter = Interpreter(modelByteBuffer, options)
@@ -65,7 +65,7 @@ class LlmInference(
         val inputs = arrayOf<Any>(inputBuffer)
         val outputs = mutableMapOf<Int, Any>()
         var nextTokenId = -1
-        val endTokenId = tokenizer.endId // 使用新的 endId
+        val endTokenId = tokenizer.endId
         var generatedTokens = 0
 
         while (nextTokenId != endTokenId && generatedTokens < settings.maxNewTokens) {
