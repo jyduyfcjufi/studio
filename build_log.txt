@@ -30,10 +30,10 @@ FAILURE: Build failed with an exception.
 * What went wrong:
 Execution failed for task ':app:checkDebugAarMetadata'.
 > Could not resolve all files for configuration ':app:debugRuntimeClasspath'.
-   > Could not find com.google.sentencepiece:sentencepiece:0.2.0.
+   > Could not find com.google.sentencepiece:sentencepiece:0.1.99.
      Searched in the following locations:
-       - https://dl.google.com/dl/android/maven2/com/google/sentencepiece/sentencepiece/0.2.0/sentencepiece-0.2.0.pom
-       - https://repo.maven.apache.org/maven2/com/google/sentencepiece/sentencepiece/0.2.0/sentencepiece-0.2.0.pom
+       - https://dl.google.com/dl/android/maven2/com/google/sentencepiece/sentencepiece/0.1.99/sentencepiece-0.1.99.pom
+       - https://repo.maven.apache.org/maven2/com/google/sentencepiece/sentencepiece/0.1.99/sentencepiece-0.1.99.pom
      Required by:
          project :app
 
@@ -43,5 +43,5 @@ Execution failed for task ':app:checkDebugAarMetadata'.
 > Run with --scan to get full insights.
 > Get more help at https://help.gradle.org.
 
-BUILD FAILED in 2m 48s
+BUILD FAILED in 3m 9s
 2 actionable tasks: 2 executed
