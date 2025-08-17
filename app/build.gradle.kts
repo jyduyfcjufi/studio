@@ -72,6 +72,6 @@ dependencies {
     implementation("org.tensorflow:tensorflow-lite:2.16.1")
     implementation("org.tensorflow:tensorflow-lite-gpu:2.16.1")
 
-    // SentencePiece Java/Android Library from JitPack
-    implementation("com.github.axet:sentencepiece:0.1.99-1.1")
+    // MediaPipe SentencePiece Library (hosted on Maven Central)
+    implementation("com.google.mediapipe:sentencepiece:0.2.0")
 }
