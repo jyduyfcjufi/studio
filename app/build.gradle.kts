@@ -74,5 +74,5 @@ dependencies {
 
     // SentencePiece Java/Android Library (JNI wrapper for the C++ library)
     // This allows us to process .model files directly.
-    implementation("com.google.sentencepiece:sentencepiece:0.2.0")
+    implementation("com.google.sentencepiece:sentencepiece:0.1.99")
 }

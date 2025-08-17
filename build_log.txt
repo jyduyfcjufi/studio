@@ -23,56 +23,19 @@ w: file:///home/runner/work/studio/studio/app/build.gradle.kts:47:5: 'aaptOption
 > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
 > Task :app:checkKotlinGradlePluginConfigurationErrors
 > Task :app:checkDebugAarMetadata
-> Task :app:generateDebugResValues
-> Task :app:mapDebugSourceSetPaths
-> Task :app:generateDebugResources
-> Task :app:packageDebugResources
-> Task :app:mergeDebugResources
-> Task :app:createDebugCompatibleScreenManifests
-> Task :app:extractDeepLinksDebug
-> Task :app:parseDebugLocalResources
-
-> Task :app:processDebugMainManifest
-[org.tensorflow:tensorflow-lite-support:0.4.4] /home/runner/.gradle/caches/transforms-4/5de0d76911a7a2b709215bde213449da/transformed/tensorflow-lite-support-0.4.4/AndroidManifest.xml Warning:
-	Namespace 'org.tensorflow.lite.support' is used in multiple modules and/or libraries: org.tensorflow:tensorflow-lite-support:0.4.4, org.tensorflow:tensorflow-lite-support-api:0.4.4. Please ensure that all modules and libraries have a unique namespace. For more information, See https://developer.android.com/studio/build/configure-app-module#set-namespace
-
-> Task :app:processDebugManifest
-> Task :app:processDebugManifestForPackage
-> Task :app:javaPreCompileDebug
-> Task :app:mergeDebugShaders
-> Task :app:compileDebugShaders NO-SOURCE
-> Task :app:generateDebugAssets UP-TO-DATE
-> Task :app:mergeDebugAssets
-> Task :app:compressDebugAssets
-> Task :app:desugarDebugFileDependencies
-> Task :app:processDebugResources
-> Task :app:checkDebugDuplicateClasses
-> Task :app:mergeDebugStartupProfile
-> Task :app:compileDebugKotlin
-> Task :app:mergeExtDexDebug
-> Task :app:compileDebugJavaWithJavac NO-SOURCE
-> Task :app:dexBuilderDebug
-> Task :app:mergeDebugGlobalSynthetics
-> Task :app:processDebugJavaRes
-> Task :app:mergeLibDexDebug
-> Task :app:mergeDebugJniLibFolders
-> Task :app:mergeProjectDexDebug
-> Task :app:mergeDebugNativeLibs
-> Task :app:mergeDebugJavaResource
-> Task :app:validateSigningDebug
-> Task :app:writeDebugAppMetadata
-> Task :app:writeDebugSigningConfigVersions
-
-> Task :app:stripDebugDebugSymbols
-Unable to strip the following libraries, packaging them as they are: libtensorflowlite_gpu_jni.so, libtensorflowlite_jni.so.
-
-> Task :app:packageDebug FAILED
+> Task :app:checkDebugAarMetadata FAILED
 
 FAILURE: Build failed with an exception.
 
 * What went wrong:
-Execution failed for task ':app:packageDebug'.
-> A failure occurred while executing com.android.build.gradle.tasks.PackageAndroidArtifact$IncrementalSplitterRunnable
+Execution failed for task ':app:checkDebugAarMetadata'.
+> Could not resolve all files for configuration ':app:debugRuntimeClasspath'.
+   > Could not find com.google.sentencepiece:sentencepiece:0.2.0.
+     Searched in the following locations:
+       - https://dl.google.com/dl/android/maven2/com/google/sentencepiece/sentencepiece/0.2.0/sentencepiece-0.2.0.pom
+       - https://repo.maven.apache.org/maven2/com/google/sentencepiece/sentencepiece/0.2.0/sentencepiece-0.2.0.pom
+     Required by:
+         project :app
 
 * Try:
 > Run with --stacktrace option to get the stack trace.
@@ -80,5 +43,5 @@ Execution failed for task ':app:packageDebug'.
 > Run with --scan to get full insights.
 > Get more help at https://help.gradle.org.
 
-BUILD FAILED in 4m 41s
-36 actionable tasks: 36 executed
+BUILD FAILED in 2m 48s
+2 actionable tasks: 2 executed
