@@ -71,4 +71,8 @@ dependencies {
     // TensorFlow Lite
     implementation("org.tensorflow:tensorflow-lite:2.16.1")
     implementation("org.tensorflow:tensorflow-lite-gpu:2.16.1")
+
+    // SentencePiece Java/Android Library (JNI wrapper for the C++ library)
+    // This allows us to process .model files directly.
+    implementation("com.google.sentencepiece:sentencepiece:0.2.0")
 }

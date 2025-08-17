@@ -1,96 +1,114 @@
 package com.example.aistudio.viewmodels
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.aistudio.inference.Accelerator
+import com.example.aistudio.inference.LlmInference
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.tensorflow.lite.Interpreter
-import org.tensorflow.lite.nnapi.NnApiDelegate
-import java.io.File
-import java.nio.ByteBuffer
-import java.nio.charset.Charset
 
-class InferenceViewModel : ViewModel() {
+data class ChatMessage(
+    val text: String,
+    val isFromUser: Boolean
+)
+
+data class InferenceUiState(
+    val messages: List<ChatMessage> = emptyList(),
+    val isGenerating: Boolean = false,
+    val selectedModel: ModelInfo? = null,
+    val performanceStats: String = ""
+)
+
+class InferenceViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(InferenceUiState())
     val uiState: StateFlow<InferenceUiState> = _uiState.asStateFlow()
 
-    private var interpreter: Interpreter? = null
+    private var llmInference: LlmInference? = null
+    private var generationJob: Job? = null
 
-    fun loadModel(modelPath: String) {
-        viewModelScope.launch {
-            _uiState.value = InferenceUiState(isLoading = true)
-            val modelLoaded = withContext(Dispatchers.IO) {
-                try {
-                    val nnApiDelegate = NnApiDelegate()
-                    val options = Interpreter.Options().addDelegate(nnApiDelegate)
-                    interpreter = Interpreter(File(modelPath), options)
-                    true
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    try {
-                        // Fallback to CPU
-                        interpreter = Interpreter(File(modelPath))
-                        true
-                    } catch (e2: Exception) {
-                        e2.printStackTrace()
-                        false
-                    }
-                }
-            }
-            _uiState.value = InferenceUiState(isModelLoaded = modelLoaded)
+    fun onModelSelected(model: ModelInfo?) {
+        _uiState.update { it.copy(selectedModel = model, messages = emptyList()) }
+        if (model == null) {
+            llmInference?.close()
+            llmInference = null
         }
     }
 
-    fun runInference(inputText: String) {
-        if (interpreter == null) {
-            _uiState.value = _uiState.value.copy(outputText = "Error: Model not loaded.")
+    fun sendMessage(prompt: String, accelerator: Accelerator, settings: InferenceSettings) {
+        val currentModel = _uiState.value.selectedModel
+        if (currentModel?.tokenizerPath == null) {
             return
         }
 
-        viewModelScope.launch(Dispatchers.Default) {
-            _uiState.value = _uiState.value.copy(isInferring = true)
+        generationJob?.cancel()
+
+        _uiState.update { currentState ->
+            val newMessages = currentState.messages.toMutableList().apply {
+                add(ChatMessage(prompt, true))
+                add(ChatMessage("", false))
+            }
+            currentState.copy(messages = newMessages)
+        }
+
+        generationJob = viewModelScope.launch(Dispatchers.IO) {
             try {
-                // This is a placeholder for input/output processing.
-                // Real models require specific tokenization and tensor shapes.
-                // We'll start with a simple byte-in, byte-out assumption.
-                val inputBuffer = ByteBuffer.wrap(inputText.toByteArray(Charset.defaultCharset()))
+                llmInference?.close()
+                llmInference = LlmInference(
+                    context = getApplication(),
+                    modelPath = currentModel.path,
+                    tokenizerPath = currentModel.tokenizerPath,
+                    accelerator = accelerator,
+                    settings = settings // 将设置传递给推理引擎
+                )
+
+                val responseFlow = llmInference!!.generate(prompt)
                 
-                // Assuming the model has 1 output tensor, and it's a byte array.
-                val outputBuffer = ByteBuffer.allocate(1024) 
-                val outputMap = mapOf(0 to outputBuffer)
-
-                interpreter?.runForMultipleInputsOutputs(arrayOf(inputBuffer), outputMap)
-
-                outputBuffer.flip()
-                val outputBytes = ByteArray(outputBuffer.remaining())
-                outputBuffer.get(outputBytes)
-                
-                val outputText = String(outputBytes, Charset.defaultCharset()).trim()
-
-                _uiState.value = _uiState.value.copy(isInferring = false, outputText = outputText)
+                responseFlow
+                    .onStart { _uiState.update { it.copy(isGenerating = true) } }
+                    .onCompletion { _uiState.update { it.copy(isGenerating = false) } }
+                    .catch { e ->
+                        e.printStackTrace()
+                        updateLastMessage("生成失败: ${e.message}")
+                    }
+                    .collect { token ->
+                        updateLastMessage(token, append = true)
+                    }
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                _uiState.value = _uiState.value.copy(isInferring = false, outputText = "Inference failed: ${e.message}")
+                updateLastMessage("错误: ${e.message}")
+                _uiState.update { it.copy(isGenerating = false) }
+            }
+        }
+    }
+
+    fun stopGeneration() {
+        generationJob?.cancel()
+        generationJob = null
+        _uiState.update { it.copy(isGenerating = false) }
+    }
+
+    private fun updateLastMessage(text: String, append: Boolean = false) {
+        _uiState.update { currentState ->
+            val lastMessageIndex = currentState.messages.lastIndex
+            if (lastMessageIndex != -1) {
+                val updatedMessages = currentState.messages.toMutableList()
+                val lastMessage = updatedMessages[lastMessageIndex]
+                val newText = if (append) lastMessage.text + text else text
+                updatedMessages[lastMessageIndex] = lastMessage.copy(text = newText)
+                currentState.copy(messages = updatedMessages)
+            } else {
+                currentState
             }
         }
     }
 
     override fun onCleared() {
         super.onCleared()
-        interpreter?.close()
+        llmInference?.close()
     }
 }
-
-data class InferenceUiState(
-    val isLoading: Boolean = false,
-    val isModelLoaded: Boolean = false,
-    val isInferring: Boolean = false,
-    val inputText: String = "",
-    val outputText: String = ""
-)
