@@ -76,6 +76,6 @@ dependencies {
     implementation("org.tensorflow:tensorflow-lite:2.16.1")
     implementation("org.tensorflow:tensorflow-lite-gpu:2.16.1")
 
-    // A verified, public SentencePiece JNI wrapper from JitPack
-    implementation("com.github.sensen-llc:sentencepiece:0.1.99")
+    // TensorFlow Lite Support Library (includes official SentencePiece Tokenizer)
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
 }

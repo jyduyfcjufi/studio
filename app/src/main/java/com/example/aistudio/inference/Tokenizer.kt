@@ -1,30 +1,38 @@
 package com.example.aistudio.inference
 
-import com.google.sentencepiece.SentencePieceProcessor
+import org.tensorflow.lite.support.text.tokenization.SentencePieceTokenizer
+import java.io.FileInputStream
 
+/**
+ * 使用官方 TensorFlow Lite Support Library 重写的最终版 Tokenizer.
+ */
 class Tokenizer(private val tokenizerPath: String) {
 
-    private val processor = SentencePieceProcessor()
+    private val tokenizer: SentencePieceTokenizer
 
     val startId: Int
     val endId: Int
 
     init {
-        processor.load(tokenizerPath)
-        startId = processor.bosId()
-        endId = processor.eosId()
+        // Support Library 的 Tokenizer 需要一个 InputStream
+        val inputStream = FileInputStream(tokenizerPath)
+        tokenizer = SentencePieceTokenizer(inputStream)
+        inputStream.close()
+        
+        startId = tokenizer.bosId
+        endId = tokenizer.eosId
     }
 
     fun encode(text: String): List<Int> {
-        val ids = processor.encode(text)
-        return listOf(startId) + ids
+        // 官方库的 tokenize 方法返回的是 IntArray，我们将其转换为 List<Int>
+        return tokenizer.tokenize(text).toList()
     }
 
     fun decode(tokenId: Int): String {
-        return processor.decode(intArrayOf(tokenId))
+        return tokenizer.detokenize(intArrayOf(tokenId))
     }
     
     fun decode(tokenIds: List<Int>): String {
-        return processor.decode(tokenIds.toIntArray())
+        return tokenizer.detokenize(tokenIds.toIntArray())
     }
 }
